@@ -8,6 +8,7 @@ class dataBlock:
         self.tempList = None
         self.listDepth = None
         self.listStore = None
+        self.dictDepth = 0
         self.update = autoUpdate
         self.data = {}
         if not path.exists(filePath):
@@ -30,10 +31,30 @@ class dataBlock:
     def __getitem__(self, item):
         return self.data[str(item)]
 
+    '''
     def AddValue(self, name, value):
         self.data[name] = value
         if self.update:
             self.Serialize()
+    '''
+
+    def AddValue(self, name, value, dataSet, d, called=True):
+        if called:
+            if d == 0:
+                self.data[name] = value
+            else:
+                d -= 1
+                self.data[list(self.data.keys())[-1]] = self.AddValue(name, value,
+                                                                      self.data[list(self.data.keys())[-1]], d, False)
+        else:
+            if d == 0:
+                dataSet[name] = value
+                return dataSet
+            else:
+                d -= 1
+                dataSet[list(dataSet.keys())[-1]] = self.AddValue(name, value,
+                                                                  dataSet[list(dataSet.keys())[-1]], d, False)
+                return dataSet
 
     def addBlank(self, d, lis, firstTime=False):
         if d == 1:
@@ -76,6 +97,7 @@ class dataBlock:
         readFloat = False
         readBool = False
         readList = False
+        readDict = False
         listFirstTime = False
         readInListStr = False
         readInListInt = False
@@ -86,6 +108,15 @@ class dataBlock:
             tString = file.readline()
             if tString[-1] == '\n':
                 tString = tString[0:-1]
+            if tString == '|↑|dict|↑|':
+                self.dictDepth += 1
+                readDict = True
+                continue
+            if readDict:
+                readDict = False
+                self.AddValue(str(tString), {}, self.data, self.dictDepth - 1)
+            if tString == '|↓|dict|↓|':
+                self.dictDepth -= 1
             if (not readString) and (not readInt) and (not readFloat) and (not readBool) and (not readList):
                 if tString == '|↑|str|↑|':
                     readString = True
@@ -108,31 +139,31 @@ class dataBlock:
             else:
                 if readString:
                     if tString == '|↓|str|↓|':
-                        self.AddValue(self.tempList[0], self.tempList[1])
+                        self.AddValue(self.tempList[0], self.tempList[1], self.data, self.dictDepth)
                         readString = False
                     else:
                         self.tempList.append(tString)
                 if readInt:
                     if tString == '|↓|int|↓|':
-                        self.AddValue(self.tempList[0], int(self.tempList[1]))
+                        self.AddValue(self.tempList[0], int(self.tempList[1]), self.data, self.dictDepth)
                         readInt = False
                     else:
                         self.tempList.append(tString)
                 if readFloat:
                     if tString == '|↓|float|↓|':
-                        self.AddValue(self.tempList[0], float(self.tempList[1]))
+                        self.AddValue(self.tempList[0], float(self.tempList[1]), self.data, self.dictDepth)
                         readFloat = False
                     else:
                         self.tempList.append(tString)
                 if readBool:
                     if tString == '|↓|bool|↓|':
-                        self.AddValue(self.tempList[0], bool(self.tempList[1]))
+                        self.AddValue(self.tempList[0], bool(self.tempList[1]), self.data, self.dictDepth)
                         readBool = False
                     else:
                         self.tempList.append(tString)
                 if readList:
                     if tString == '|↓|list|↓|':
-                        self.AddValue(self.tempList, list(self.listStore))
+                        self.AddValue(self.tempList, list(self.listStore), self.data, self.dictDepth)
                         readList = False
                     else:
                         if listFirstTime:
@@ -185,25 +216,17 @@ class dataBlock:
             self.update = True
 
 
+'''
+a = dataBlock('E:\\testing.txt', False)
+a.data = {}
+a.AddValue('name', 'value', a.data, 0)
+a.AddValue('dict', {}, a.data, 0)
+a.AddValue('a', [1,2,3,4], a.data, 1)
+a.AddValue('b', 'value 2', a.data, 1)
+a.AddValue('dict 2', {}, a.data, 1)
+a.AddValue('me', 3105, a.data, 2)
+print(a)
+'''
 a = dataBlock('E:\\testing.txt', True)
 a.Deserialize()
 print(a)
-'''
-
-
-def addBlank(d, lis, firstTime=False):
-    if d == 1:
-        lis.append([])
-        if firstTime:
-            return lis
-    else:
-        d -= 1
-        addBlank(d, lis[-1])
-        if firstTime:
-            return lis
-
-
-a = ['5', 'AY', ['25', 70]]
-a = addBlank(1, a, True)
-print(a)
-'''
