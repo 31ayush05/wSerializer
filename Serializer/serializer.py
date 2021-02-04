@@ -6,6 +6,8 @@ class dataBlock:
     def __init__(self, filePath, autoUpdate=False):
         self.storeUpdate = None
         self.tempList = None
+        self.listDepth = None
+        self.listStore = None
         self.update = autoUpdate
         self.data = {}
         if not path.exists(filePath):
@@ -33,6 +35,29 @@ class dataBlock:
         if self.update:
             self.Serialize()
 
+    def addBlank(self, d, lis, firstTime=False):
+        if d == 1:
+            lis.append([])
+            if firstTime:
+                return lis
+        else:
+            d -= 1
+            self.addBlank(d, lis[-1])
+            if firstTime:
+                return lis
+
+    def addToList(self, d, lis, val, firstTime=False):
+        if d == 1:
+            d -= 1
+            lis.append(val)
+            if firstTime:
+                return lis
+        else:
+            d -= 1
+            self.addToList(d, lis[-1], val)
+            if firstTime:
+                return lis
+
     def Serialize(self):
         return None
 
@@ -50,12 +75,15 @@ class dataBlock:
         readInt = False
         readFloat = False
         readBool = False
+        readList = False
+        listFirstTime = False
+        readInListStr = False
         file = open(self.dataFilePath, 'r', encoding='UTF-8')
         for x in range(b):
             tString = file.readline()
             if tString[-1] == '\n':
                 tString = tString[0:-1]
-            if (not readString) and (not readInt) and (not readFloat) and (not readBool):
+            if (not readString) and (not readInt) and (not readFloat) and (not readBool) and (not readList):
                 if tString == '|↑|str|↑|':
                     readString = True
                     self.tempList = []
@@ -68,6 +96,12 @@ class dataBlock:
                 if tString == '|↑|bool|↑|':
                     readBool = True
                     self.tempList = []
+                if tString == '|↑|list|↑|':
+                    readList = True
+                    listFirstTime = True
+                    self.listDepth = 1
+                    self.tempList = None
+                    self.listStore = []
             else:
                 if readString:
                     if tString == '|↓|str|↓|':
@@ -93,6 +127,29 @@ class dataBlock:
                         readBool = False
                     else:
                         self.tempList.append(tString)
+                if readList:
+                    if tString == '|↓|list|↓|':
+                        self.AddValue(self.tempList, list(self.listStore))
+                        readList = False
+                    else:
+                        if listFirstTime:
+                            self.tempList = str(tString)
+                            listFirstTime = False
+                        else:
+                            if tString == '|↓↓|':
+                                self.listDepth -= 1
+                            if tString == '|↑↑|':
+                                self.listDepth += 1
+                                self.listStore = self.addBlank(self.listDepth - 1, self.listStore, True)
+                            if not readInListStr:
+                                if tString == '|↑|str|↑|':
+                                    readInListStr = True
+                            else:
+                                if readInListStr:
+                                    if tString == '|↓|str|↓|':
+                                        readInListStr = False
+                                    else:
+                                        self.listStore = self.addToList(self.listDepth, self.listStore, tString, True)
         file.close()
         if self.storeUpdate:
             self.storeUpdate = None
@@ -102,3 +159,22 @@ class dataBlock:
 a = dataBlock('E:\\testing.txt', True)
 a.Deserialize()
 print(a)
+'''
+
+
+def addBlank(d, lis, firstTime=False):
+    if d == 1:
+        lis.append([])
+        if firstTime:
+            return lis
+    else:
+        d -= 1
+        addBlank(d, lis[-1])
+        if firstTime:
+            return lis
+
+
+a = ['5', 'AY', ['25', 70]]
+a = addBlank(1, a, True)
+print(a)
+'''
