@@ -78,6 +78,9 @@ class dataBlock:
         readList = False
         listFirstTime = False
         readInListStr = False
+        readInListInt = False
+        readInListFloat = False
+        readInListBool = False
         file = open(self.dataFilePath, 'r', encoding='UTF-8')
         for x in range(b):
             tString = file.readline()
@@ -141,15 +144,41 @@ class dataBlock:
                             if tString == '|↑↑|':
                                 self.listDepth += 1
                                 self.listStore = self.addBlank(self.listDepth - 1, self.listStore, True)
-                            if not readInListStr:
+                            if (not readInListStr) and (not readInListInt) and (not readInListBool) and \
+                                    (not readInListFloat):
                                 if tString == '|↑|str|↑|':
                                     readInListStr = True
+                                if tString == '|↑|int|↑|':
+                                    readInListInt = True
+                                if tString == '|↑|float|↑|':
+                                    readInListFloat = True
+                                if tString == '|↑|bool|↑|':
+                                    readInListBool = True
                             else:
                                 if readInListStr:
                                     if tString == '|↓|str|↓|':
                                         readInListStr = False
                                     else:
-                                        self.listStore = self.addToList(self.listDepth, self.listStore, tString, True)
+                                        self.listStore = self.addToList(self.listDepth, self.listStore, str(tString),
+                                                                        True)
+                                if readInListInt:
+                                    if tString == '|↓|int|↓|':
+                                        readInListInt = False
+                                    else:
+                                        self.listStore = self.addToList(self.listDepth, self.listStore, int(tString),
+                                                                        True)
+                                if readInListFloat:
+                                    if tString == '|↓|float|↓|':
+                                        readInListFloat = False
+                                    else:
+                                        self.listStore = self.addToList(self.listDepth, self.listStore, float(tString),
+                                                                        True)
+                                if readInListBool:
+                                    if tString == '|↓|bool|↓|':
+                                        readInListBool = False
+                                    else:
+                                        self.listStore = self.addToList(self.listDepth, self.listStore, bool(tString),
+                                                                        True)
         file.close()
         if self.storeUpdate:
             self.storeUpdate = None
