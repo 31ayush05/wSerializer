@@ -49,6 +49,23 @@ class dataBlock:
                                                                   dataSet[list(dataSet.keys())[-1]], d, False)
                 return dataSet
 
+    def convertLis(self, d, lis, typeLis='tuple', firstTime=False):
+        if d == 1:
+            if typeLis == 'tuple':
+                lis = tuple(lis)
+            else:
+                lis = set(lis)
+            if firstTime:
+                return lis
+        else:
+            d -= 1
+            if typeLis == 'tuple':
+                self.convertLis(d, lis[-1], 'tuple')
+            else:
+                self.convertLis(d, lis[-1], 'set')
+            if firstTime:
+                return lis
+
     def addBlank(self, d, lis, firstTime=False):
         if d == 1:
             lis.append([])
@@ -62,7 +79,6 @@ class dataBlock:
 
     def addToList(self, d, lis, val, firstTime=False):
         if d == 1:
-            d -= 1
             lis.append(val)
             if firstTime:
                 return lis
@@ -129,7 +145,7 @@ class dataBlock:
                 if tString == '|↑|complex|↑|':
                     readComplex = True
                     self.tempList = []
-                if tString == '|↑|list|↑|':
+                if (tString == '|↑|list|↑|') or (tString == '|↑|tuple|↑|') or (tString == '|↑|set|↑|'):
                     readList = True
                     listFirstTime = True
                     self.listDepth = 1
@@ -169,17 +185,25 @@ class dataBlock:
                     else:
                         self.tempList.append(tString)
                 if readList:
-                    if tString == '|↓|list|↓|':
-                        self.AddValue(self.tempList, list(self.listStore), self.data, self.dictDepth)
+                    if (tString == '|↓|list|↓|') or (tString == '|↓|tuple|↓|') or (tString == '|↓|set|↓|'):
+                        if tString == '|↓|tuple|↓|':
+                            self.listStore = self.convertLis(self.listDepth, self.listStore, 'tuple', True)
+                        if tString == '|↓|set|↓|':
+                            self.listStore = self.convertLis(self.listDepth, self.listStore, 'set', True)
+                        self.AddValue(self.tempList, self.listStore, self.data, self.dictDepth)
                         readList = False
                     else:
                         if listFirstTime:
                             self.tempList = str(tString)
                             listFirstTime = False
                         else:
-                            if tString == '|↓↓|':
+                            if (tString == '|↓l↓|') or (tString == '|↓t↓|') or (tString == '|↓s↓|'):
+                                if tString == '|↓t↓|':
+                                    self.listStore = self.convertLis(self.listDepth, self.listStore, 'tuple', True)
+                                if tString == '|↓s↓|':
+                                    self.listStore = self.convertLis(self.listDepth, self.listStore, 'set', True)
                                 self.listDepth -= 1
-                            if tString == '|↑↑|':
+                            if (tString == '|↑l↑|') or (tString == '|↑t↑|') or (tString == '|↑s↑|'):
                                 self.listDepth += 1
                                 self.listStore = self.addBlank(self.listDepth - 1, self.listStore, True)
                             if (not readInListStr) and (not readInListInt) and (not readInListBool) and \
