@@ -8,7 +8,6 @@ class dataBlock:
         self.tempList = None
         self.listDepth = None
         self.listStore = None
-        self.dictDepth = 0
         self.update = autoUpdate
         self.data = {}
         if not path.exists(filePath):
@@ -18,14 +17,16 @@ class dataBlock:
             self.dataFilePath = filePath
 
     def __str__(self):
-        out = '\n'*2 + '-- DATABASE --' + '\n'*2
+        out = '\n' * 2 + '-- DATABASE --' + '\n' * 2
         counter = -1
         for x in self.data:
             counter += 1
             if counter != len(self.data) - 1:
-                out += str(x) + ' : ' + str(type(self.data[x]))[8:-2] + '\n' + ' '*5 + str(self.data[x]) + '\n'
+                out += str(x) + ' : ' + str(type(x))[8:-2] + ' - ' + str(type(self.data[x]))[8:-2] + '\n' + ' ' * 5 + \
+                       str(self.data[x]) + '\n'
             else:
-                out += str(x) + ' : ' + str(type(self.data[x]))[8:-2] + '\n' + ' '*5 + str(self.data[x])
+                out += str(x) + ' : ' + str(type(x))[8:-2] + ' - ' + str(type(self.data[x]))[8:-2] + '\n' + ' ' * 5 + \
+                       str(self.data[x])
         return out + '\n'
 
     def __getitem__(self, item):
@@ -66,19 +67,40 @@ class dataBlock:
             if firstTime:
                 return lis
 
-    def addBlank(self, d, lis, firstTime=False):
-        if d == 1:
-            lis.append([])
-            if firstTime:
-                return lis
+    def keyWiseAdder(self, tString, keyType):
+        if tString == '|↑str↑|':
+            keyType = 'str'
+        elif tString == '|↑int↑|':
+            keyType = 'int'
+        elif tString == '|↑float↑|':
+            keyType = 'float'
+        elif tString == '|↑bool↑|':
+            keyType = 'bool'
+        elif tString == '|↑complex↑|':
+            keyType = 'complex'
         else:
-            d -= 1
-            self.addBlank(d, lis[-1])
-            if firstTime:
-                return lis
+            if keyType == 'str':
+                self.tempList.append(tString)
+                keyType = None
+            elif keyType == 'int':
+                self.tempList.append(int(tString))
+                keyType = None
+            elif keyType == 'float':
+                self.tempList.append(float(tString))
+                keyType = None
+            elif keyType == 'bool':
+                self.tempList.append(bool(tString))
+                keyType = None
+            elif keyType == 'complex':
+                v = tString.split(' ')
+                self.tempList.append(complex(float(v[0]), float(v[1])))
+                keyType = None
+            else:
+                self.tempList.append(tString)
+        return keyType
 
     def addToList(self, d, lis, val, firstTime=False):
-        if d == 1:
+        if d == 0:
             lis.append(val)
             if firstTime:
                 return lis
@@ -114,20 +136,52 @@ class dataBlock:
         readInListFloat = False
         readInListBool = False
         readInListComplex = False
+        keyType = None
+        dictDepth = 0
         file = open(self.dataFilePath, 'r', encoding='UTF-8')
         for x in range(b):
             tString = file.readline()
             if tString[-1] == '\n':
                 tString = tString[0:-1]
             if tString == '|↑|dict|↑|':
-                self.dictDepth += 1
+                dictDepth += 1
                 readDict = True
                 continue
             if readDict:
-                readDict = False
-                self.AddValue(str(tString), {}, self.data, self.dictDepth - 1)
+                if tString == '|↑str↑|':
+                    keyType = 'str'
+                elif tString == '|↑int↑|':
+                    keyType = 'int'
+                elif tString == '|↑float↑|':
+                    keyType = 'float'
+                elif tString == '|↑bool↑|':
+                    keyType = 'bool'
+                elif tString == '|↑complex↑|':
+                    keyType = 'complex'
+                else:
+                    if keyType == 'str':
+                        self.AddValue(str(tString), {}, self.data, dictDepth - 1)
+                        keyType = None
+                        readDict = False
+                    if keyType == 'int':
+                        self.AddValue(int(tString), {}, self.data, dictDepth - 1)
+                        keyType = None
+                        readDict = False
+                    if keyType == 'float':
+                        self.AddValue(float(tString), {}, self.data, dictDepth - 1)
+                        keyType = None
+                        readDict = False
+                    if keyType == 'bool':
+                        self.AddValue(bool(tString), {}, self.data, dictDepth - 1)
+                        keyType = None
+                        readDict = False
+                    if keyType == 'complex':
+                        v = tString.split(' ')
+                        self.AddValue(complex(float(v[0]), float(v[1])), {}, self.data, dictDepth - 1)
+                        keyType = None
+                        readDict = False
             if tString == '|↓|dict|↓|':
-                self.dictDepth -= 1
+                dictDepth -= 1
             if (not readString) and (not readInt) and (not readFloat) and (not readBool) and (not readList) and \
                     (not readComplex):
                 if tString == '|↑|str|↑|':
@@ -154,48 +208,78 @@ class dataBlock:
             else:
                 if readString:
                     if tString == '|↓|str|↓|':
-                        self.AddValue(self.tempList[0], self.tempList[1], self.data, self.dictDepth)
+                        self.AddValue(self.tempList[0], self.tempList[1], self.data, dictDepth)
                         readString = False
                     else:
-                        self.tempList.append(tString)
+                        keyType = self.keyWiseAdder(tString, keyType)
                 if readInt:
                     if tString == '|↓|int|↓|':
-                        self.AddValue(self.tempList[0], int(self.tempList[1]), self.data, self.dictDepth)
+                        self.AddValue(self.tempList[0], int(self.tempList[1]), self.data, dictDepth)
                         readInt = False
                     else:
-                        self.tempList.append(tString)
+                        keyType = self.keyWiseAdder(tString, keyType)
                 if readFloat:
                     if tString == '|↓|float|↓|':
-                        self.AddValue(self.tempList[0], float(self.tempList[1]), self.data, self.dictDepth)
+                        self.AddValue(self.tempList[0], float(self.tempList[1]), self.data, dictDepth)
                         readFloat = False
                     else:
-                        self.tempList.append(tString)
+                        keyType = self.keyWiseAdder(tString, keyType)
                 if readBool:
                     if tString == '|↓|bool|↓|':
-                        self.AddValue(self.tempList[0], bool(self.tempList[1]), self.data, self.dictDepth)
+                        self.AddValue(self.tempList[0], bool(self.tempList[1]), self.data, dictDepth)
                         readBool = False
                     else:
-                        self.tempList.append(tString)  # self.tempList[1]
+                        keyType = self.keyWiseAdder(tString, keyType)
                 if readComplex:
                     if tString == '|↓|complex|↓|':
                         self.AddValue(self.tempList[0], complex(float(self.tempList[1].split(' ')[0]),
                                                                 float(self.tempList[1].split(' ')[1])),
-                                      self.data, self.dictDepth)
+                                      self.data, dictDepth)
                         readComplex = False
                     else:
-                        self.tempList.append(tString)
+                        keyType = self.keyWiseAdder(tString, keyType)
                 if readList:
                     if (tString == '|↓|list|↓|') or (tString == '|↓|tuple|↓|') or (tString == '|↓|set|↓|'):
                         if tString == '|↓|tuple|↓|':
                             self.listStore = self.convertLis(self.listDepth, self.listStore, 'tuple', True)
                         if tString == '|↓|set|↓|':
                             self.listStore = self.convertLis(self.listDepth, self.listStore, 'set', True)
-                        self.AddValue(self.tempList, self.listStore, self.data, self.dictDepth)
+                        self.AddValue(self.tempList, self.listStore, self.data, dictDepth)
                         readList = False
                     else:
                         if listFirstTime:
-                            self.tempList = str(tString)
-                            listFirstTime = False
+                            if tString == '|↑str↑|':
+                                keyType = 'str'
+                            elif tString == '|↑int↑|':
+                                keyType = 'int'
+                            elif tString == '|↑float↑|':
+                                keyType = 'float'
+                            elif tString == '|↑bool↑|':
+                                keyType = 'bool'
+                            elif tString == '|↑complex↑|':
+                                keyType = 'complex'
+                            else:
+                                if keyType == 'str':
+                                    self.tempList = tString
+                                    keyType = None
+                                    listFirstTime = False
+                                if keyType == 'int':
+                                    self.tempList = int(tString)
+                                    keyType = None
+                                    listFirstTime = False
+                                if keyType == 'float':
+                                    self.tempList = float(tString)
+                                    keyType = None
+                                    listFirstTime = False
+                                if keyType == 'bool':
+                                    self.tempList = bool(tString)
+                                    keyType = None
+                                    listFirstTime = False
+                                if keyType == 'complex':
+                                    v = tString.split(' ')
+                                    self.tempList = complex(float(v[0]), float(v[1]))
+                                    keyType = None
+                                    listFirstTime = False
                         else:
                             if (tString == '|↓l↓|') or (tString == '|↓t↓|') or (tString == '|↓s↓|'):
                                 if tString == '|↓t↓|':
@@ -205,7 +289,7 @@ class dataBlock:
                                 self.listDepth -= 1
                             if (tString == '|↑l↑|') or (tString == '|↑t↑|') or (tString == '|↑s↑|'):
                                 self.listDepth += 1
-                                self.listStore = self.addBlank(self.listDepth - 1, self.listStore, True)
+                                self.listStore = self.addToList(self.listDepth - 1, self.listStore, [], True)
                             if (not readInListStr) and (not readInListInt) and (not readInListBool) and \
                                     (not readInListFloat) and (not readInListComplex):
                                 if tString == '|↑|str|↑|':
@@ -223,31 +307,31 @@ class dataBlock:
                                     if tString == '|↓|str|↓|':
                                         readInListStr = False
                                     else:
-                                        self.listStore = self.addToList(self.listDepth, self.listStore, str(tString),
-                                                                        True)
+                                        self.listStore = self.addToList(self.listDepth - 1, self.listStore,
+                                                                        str(tString), True)
                                 if readInListInt:
                                     if tString == '|↓|int|↓|':
                                         readInListInt = False
                                     else:
-                                        self.listStore = self.addToList(self.listDepth, self.listStore, int(tString),
-                                                                        True)
+                                        self.listStore = self.addToList(self.listDepth - 1, self.listStore,
+                                                                        int(tString), True)
                                 if readInListFloat:
                                     if tString == '|↓|float|↓|':
                                         readInListFloat = False
                                     else:
-                                        self.listStore = self.addToList(self.listDepth, self.listStore, float(tString),
-                                                                        True)
+                                        self.listStore = self.addToList(self.listDepth - 1, self.listStore,
+                                                                        float(tString), True)
                                 if readInListBool:
                                     if tString == '|↓|bool|↓|':
                                         readInListBool = False
                                     else:
-                                        self.listStore = self.addToList(self.listDepth, self.listStore, bool(tString),
-                                                                        True)
+                                        self.listStore = self.addToList(self.listDepth - 1, self.listStore,
+                                                                        bool(tString), True)
                                 if readInListComplex:
                                     if tString == '|↓|complex|↓|':
                                         readInListComplex = False
                                     else:
-                                        self.listStore = self.addToList(self.listDepth, self.listStore,
+                                        self.listStore = self.addToList(self.listDepth - 1, self.listStore,
                                                                         complex(float(tString.split(' ')[0]),
                                                                                 float(tString.split(' ')[1])), True)
         file.close()
@@ -256,17 +340,6 @@ class dataBlock:
             self.update = True
 
 
-'''
-a = dataBlock('E:\\testing.txt', False)
-a.data = {}
-a.AddValue('name', 'value', a.data, 0)
-a.AddValue('dict', {}, a.data, 0)
-a.AddValue('a', [1,2,3,4], a.data, 1)
-a.AddValue('b', 'value 2', a.data, 1)
-a.AddValue('dict 2', {}, a.data, 1)
-a.AddValue('me', 3105, a.data, 2)
-print(a)
-'''
 a = dataBlock('E:\\testing.txt', True)
 a.Deserialize()
 print(a)
