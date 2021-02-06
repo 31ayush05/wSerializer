@@ -127,9 +127,6 @@ class dataBlock:
             if firstTime:
                 return lis
 
-    def Serialize(self):
-        return None
-
     def Deserialize(self, usersCall=True, data=None):  # ↑ ↓
         if usersCall:
             self.data = {}
@@ -475,7 +472,80 @@ class dataBlock:
         if not usersCall:
             return tempData
 
+    def serializeStr(self, key, value, outOfList=True):
+        out = '|↑|str|↑|\n'
+        if outOfList:
+            er = str(type(key))[8:-2]
+            if (er == 'str') or (er != 'int') or (er != 'float') or (er != 'bool') or (er != 'complex'):
+                out += '|↑' + er + '↑|\n'
+                if er != 'complex':
+                    out += str(key) + '\n'
+                else:
+                    out += str(key.real) + ' ' + str(key.imag) + '\n'
+        out += str(value) + '\n' + '|↓|str|↓|\n'
+        return out
+
+    def serializeInt(self, key, value, outOfList=True):
+        out = '|↑|int|↑|\n'
+        if outOfList:
+            er = str(type(key))[8:-2]
+            if (er == 'str') or (er != 'int') or (er != 'float') or (er != 'bool') or (er != 'complex'):
+                out += '|↑' + er + '↑|\n'
+                if er != 'complex':
+                    out += str(key) + '\n'
+                else:
+                    out += str(key.real) + ' ' + str(key.imag) + '\n'
+        out += str(value) + '\n' + '|↓|int|↓|\n'
+        return out
+
+    def serializeFloat(self, key, value, outOfList=True):
+        out = '|↑|float|↑|\n'
+        if outOfList:
+            er = str(type(key))[8:-2]
+            if (er == 'str') or (er != 'int') or (er != 'float') or (er != 'bool') or (er != 'complex'):
+                out += '|↑' + er + '↑|\n'
+                if er != 'complex':
+                    out += str(key) + '\n'
+                else:
+                    out += str(key.real) + ' ' + str(key.imag) + '\n'
+        out += str(value) + '\n' + '|↓|float|↓|\n'
+        return out
+
+    def serializeBool(self, key, value, outOfList=True):
+        out = '|↑|bool|↑|\n'
+        if outOfList:
+            er = str(type(key))[8:-2]
+            if (er == 'str') or (er != 'int') or (er != 'float') or (er != 'bool') or (er != 'complex'):
+                out += '|↑' + er + '↑|\n'
+                if er != 'complex':
+                    out += str(key) + '\n'
+                else:
+                    out += str(key.real) + ' ' + str(key.imag) + '\n'
+        out += str(value) + '\n' + '|↓|bool|↓|\n'
+        return out
+
+    def serializeComplex(self, key, value, outOfList=True):
+        out = '|↑|complex|↑|\n'
+        if outOfList:
+            er = str(type(key))[8:-2]
+            if (er == 'str') or (er != 'int') or (er != 'float') or (er != 'bool') or (er != 'complex'):
+                out += '|↑' + er + '↑|\n'
+                if er != 'complex':
+                    out += str(key) + '\n'
+                else:
+                    out += str(key.real) + ' ' + str(key.imag) + '\n'
+        out += str(value.real) + ' ' + str(value.imag) + '\n' + '|↓|complex|↓|\n'
+        return out
+
+    def Serialize(self):
+        return None
+
 
 a = dataBlock('E:\\testing.txt', True)
+m = 82.65
+print(a.serializeComplex(m, complex(3, 4), False), end='\n')
+print(a.serializeComplex(m, complex(3, 4)))
+'''
 a.Deserialize()
 print(a)
+'''
