@@ -6,8 +6,6 @@ class dataBlock:
     def __init__(self, filePath, autoUpdate=False):
         self.storeUpdate = None
         self.tempList = None
-        self.listDepth = None
-        self.listStore = None
         self.update = autoUpdate
         self.data = {}
         if not path.exists(filePath):
@@ -113,7 +111,7 @@ class dataBlock:
     def Serialize(self):
         return None
 
-    def Deserialize(self):  # ↑ ↓
+    def Deserialize(self, usersCall=True, data=None):  # ↑ ↓
         self.data = {}
         if self.update:
             self.storeUpdate = True
@@ -123,6 +121,8 @@ class dataBlock:
         file = open(self.dataFilePath, 'r', encoding='UTF-8')
         b = len(file.readlines())
         file.close()
+        listDepth = None
+        listStore = None
         readString = False
         readInt = False
         readFloat = False
@@ -202,9 +202,9 @@ class dataBlock:
                 if (tString == '|↑|list|↑|') or (tString == '|↑|tuple|↑|') or (tString == '|↑|set|↑|'):
                     readList = True
                     listFirstTime = True
-                    self.listDepth = 1
+                    listDepth = 1
                     self.tempList = None
-                    self.listStore = []
+                    listStore = []
             else:
                 if readString:
                     if tString == '|↓|str|↓|':
@@ -241,10 +241,10 @@ class dataBlock:
                 if readList:
                     if (tString == '|↓|list|↓|') or (tString == '|↓|tuple|↓|') or (tString == '|↓|set|↓|'):
                         if tString == '|↓|tuple|↓|':
-                            self.listStore = self.convertLis(self.listDepth, self.listStore, 'tuple', True)
+                            listStore = self.convertLis(listDepth, listStore, 'tuple', True)
                         if tString == '|↓|set|↓|':
-                            self.listStore = self.convertLis(self.listDepth, self.listStore, 'set', True)
-                        self.AddValue(self.tempList, self.listStore, self.data, dictDepth)
+                            listStore = self.convertLis(listDepth, listStore, 'set', True)
+                        self.AddValue(self.tempList, listStore, self.data, dictDepth)
                         readList = False
                     else:
                         if listFirstTime:
@@ -283,13 +283,13 @@ class dataBlock:
                         else:
                             if (tString == '|↓l↓|') or (tString == '|↓t↓|') or (tString == '|↓s↓|'):
                                 if tString == '|↓t↓|':
-                                    self.listStore = self.convertLis(self.listDepth, self.listStore, 'tuple', True)
+                                    listStore = self.convertLis(listDepth, listStore, 'tuple', True)
                                 if tString == '|↓s↓|':
-                                    self.listStore = self.convertLis(self.listDepth, self.listStore, 'set', True)
-                                self.listDepth -= 1
+                                    listStore = self.convertLis(listDepth, listStore, 'set', True)
+                                listDepth -= 1
                             if (tString == '|↑l↑|') or (tString == '|↑t↑|') or (tString == '|↑s↑|'):
-                                self.listDepth += 1
-                                self.listStore = self.addToList(self.listDepth - 1, self.listStore, [], True)
+                                listDepth += 1
+                                listStore = self.addToList(listDepth - 1, listStore, [], True)
                             if (not readInListStr) and (not readInListInt) and (not readInListBool) and \
                                     (not readInListFloat) and (not readInListComplex):
                                 if tString == '|↑|str|↑|':
@@ -307,33 +307,29 @@ class dataBlock:
                                     if tString == '|↓|str|↓|':
                                         readInListStr = False
                                     else:
-                                        self.listStore = self.addToList(self.listDepth - 1, self.listStore,
-                                                                        str(tString), True)
+                                        listStore = self.addToList(listDepth - 1, listStore, str(tString), True)
                                 if readInListInt:
                                     if tString == '|↓|int|↓|':
                                         readInListInt = False
                                     else:
-                                        self.listStore = self.addToList(self.listDepth - 1, self.listStore,
-                                                                        int(tString), True)
+                                        listStore = self.addToList(listDepth - 1, listStore, int(tString), True)
                                 if readInListFloat:
                                     if tString == '|↓|float|↓|':
                                         readInListFloat = False
                                     else:
-                                        self.listStore = self.addToList(self.listDepth - 1, self.listStore,
-                                                                        float(tString), True)
+                                        listStore = self.addToList(listDepth - 1, listStore, float(tString), True)
                                 if readInListBool:
                                     if tString == '|↓|bool|↓|':
                                         readInListBool = False
                                     else:
-                                        self.listStore = self.addToList(self.listDepth - 1, self.listStore,
-                                                                        bool(tString), True)
+                                        listStore = self.addToList(listDepth - 1, listStore, bool(tString), True)
                                 if readInListComplex:
                                     if tString == '|↓|complex|↓|':
                                         readInListComplex = False
                                     else:
-                                        self.listStore = self.addToList(self.listDepth - 1, self.listStore,
-                                                                        complex(float(tString.split(' ')[0]),
-                                                                                float(tString.split(' ')[1])), True)
+                                        listStore = self.addToList(listDepth - 1, listStore,
+                                                                   complex(float(tString.split(' ')[0]),
+                                                                           float(tString.split(' ')[1])), True)
         file.close()
         if self.storeUpdate:
             self.storeUpdate = None
