@@ -472,8 +472,9 @@ class dataBlock:
         if not usersCall:
             return tempData
 
-    def serializeStr(self, key, value, outOfList=True):
-        out = '|↑|str|↑|\n'
+    def basicVarSerializer(self, key, value, outOfList=True):
+        tpe = str(type(value))[8:-2]
+        out = '|↑|' + tpe + '|↑|\n'
         if outOfList:
             er = str(type(key))[8:-2]
             if (er == 'str') or (er != 'int') or (er != 'float') or (er != 'bool') or (er != 'complex'):
@@ -482,59 +483,10 @@ class dataBlock:
                     out += str(key) + '\n'
                 else:
                     out += str(key.real) + ' ' + str(key.imag) + '\n'
-        out += str(value) + '\n' + '|↓|str|↓|\n'
-        return out
-
-    def serializeInt(self, key, value, outOfList=True):
-        out = '|↑|int|↑|\n'
-        if outOfList:
-            er = str(type(key))[8:-2]
-            if (er == 'str') or (er != 'int') or (er != 'float') or (er != 'bool') or (er != 'complex'):
-                out += '|↑' + er + '↑|\n'
-                if er != 'complex':
-                    out += str(key) + '\n'
-                else:
-                    out += str(key.real) + ' ' + str(key.imag) + '\n'
-        out += str(value) + '\n' + '|↓|int|↓|\n'
-        return out
-
-    def serializeFloat(self, key, value, outOfList=True):
-        out = '|↑|float|↑|\n'
-        if outOfList:
-            er = str(type(key))[8:-2]
-            if (er == 'str') or (er != 'int') or (er != 'float') or (er != 'bool') or (er != 'complex'):
-                out += '|↑' + er + '↑|\n'
-                if er != 'complex':
-                    out += str(key) + '\n'
-                else:
-                    out += str(key.real) + ' ' + str(key.imag) + '\n'
-        out += str(value) + '\n' + '|↓|float|↓|\n'
-        return out
-
-    def serializeBool(self, key, value, outOfList=True):
-        out = '|↑|bool|↑|\n'
-        if outOfList:
-            er = str(type(key))[8:-2]
-            if (er == 'str') or (er != 'int') or (er != 'float') or (er != 'bool') or (er != 'complex'):
-                out += '|↑' + er + '↑|\n'
-                if er != 'complex':
-                    out += str(key) + '\n'
-                else:
-                    out += str(key.real) + ' ' + str(key.imag) + '\n'
-        out += str(value) + '\n' + '|↓|bool|↓|\n'
-        return out
-
-    def serializeComplex(self, key, value, outOfList=True):
-        out = '|↑|complex|↑|\n'
-        if outOfList:
-            er = str(type(key))[8:-2]
-            if (er == 'str') or (er != 'int') or (er != 'float') or (er != 'bool') or (er != 'complex'):
-                out += '|↑' + er + '↑|\n'
-                if er != 'complex':
-                    out += str(key) + '\n'
-                else:
-                    out += str(key.real) + ' ' + str(key.imag) + '\n'
-        out += str(value.real) + ' ' + str(value.imag) + '\n' + '|↓|complex|↓|\n'
+        if tpe == 'complex':
+            out += str(value.real) + ' ' + str(value.imag) + '\n' + '|↓|' + tpe + '|↓|\n'
+        else:
+            out += str(value) + '\n' + '|↓|' + tpe + '|↓|\n'
         return out
 
     def Serialize(self):
@@ -542,9 +494,10 @@ class dataBlock:
 
 
 a = dataBlock('E:\\testing.txt', True)
-m = 82.65
-print(a.serializeComplex(m, complex(3, 4), False), end='\n')
-print(a.serializeComplex(m, complex(3, 4)))
+m = True
+v = True
+print(a.basicVarSerializer(m, v, False), end='\n')
+print(a.basicVarSerializer(m, v))
 '''
 a.Deserialize()
 print(a)
