@@ -145,6 +145,7 @@ class dataBlock:
         keyType = None
         listDepth = None
         listStore = None
+        justNow = False
         readString = False
         readInt = False
         readFloat = False
@@ -291,7 +292,7 @@ class dataBlock:
                         if usersCall:
                             keyType = self.keyWiseAdder(tString, keyType)
                         else:
-                            m = self.keyWiseAdder(tString, keyType, tempData, False)
+                            m = self.keyWiseAdder(tString, keyType, tempList, False)
                             keyType = m[0]
                             tempList = m[1]
                 if readFloat:
@@ -305,7 +306,7 @@ class dataBlock:
                         if usersCall:
                             keyType = self.keyWiseAdder(tString, keyType)
                         else:
-                            m = self.keyWiseAdder(tString, keyType, tempData, False)
+                            m = self.keyWiseAdder(tString, keyType, tempList, False)
                             keyType = m[0]
                             tempList = m[1]
                 if readBool:
@@ -319,7 +320,7 @@ class dataBlock:
                         if usersCall:
                             keyType = self.keyWiseAdder(tString, keyType)
                         else:
-                            m = self.keyWiseAdder(tString, keyType, tempData, False)
+                            m = self.keyWiseAdder(tString, keyType, tempList, False)
                             keyType = m[0]
                             tempList = m[1]
                 if readComplex:
@@ -336,7 +337,7 @@ class dataBlock:
                         if usersCall:
                             keyType = self.keyWiseAdder(tString, keyType)
                         else:
-                            m = self.keyWiseAdder(tString, keyType, tempData, False)
+                            m = self.keyWiseAdder(tString, keyType, tempList, False)
                             keyType = m[0]
                             tempList = m[1]
                 if readList:
@@ -413,6 +414,7 @@ class dataBlock:
                             if tString == '|↑|dictInList|↑|':
                                 if readDictInList == 0:
                                     dictToRead = []
+                                    justNow = True
                                 readDictInList += 1
                             if (not readInListStr) and (not readInListInt) and (not readInListBool) and \
                                     (not readInListFloat) and (not readInListComplex) and (readDictInList == 0):
@@ -463,7 +465,10 @@ class dataBlock:
                                         else:
                                             dictToRead.append(tString)
                                     else:
-                                        dictToRead.append(tString)
+                                        if not justNow:
+                                            dictToRead.append(tString)
+                                        else:
+                                            justNow = False
         if usersCall:
             file.close()
         if self.storeUpdate and usersCall:
@@ -489,15 +494,88 @@ class dataBlock:
             out += str(value) + '\n' + '|↓|' + tpe + '|↓|\n'
         return out
 
+    def serializeLTS(self, key, value, LoD):
+        out = ''
+        tpe = str(type(value))[8:-2]
+        if (LoD == 0) or (LoD == 1):
+            out += '|↑|' + tpe + '|↑|\n'
+            er = str(type(key))[8:-2]
+            if (er == 'str') or (er != 'int') or (er != 'float') or (er != 'bool') or (er != 'complex'):
+                out += '|↑' + er + '↑|\n'
+                if er != 'complex':
+                    out += str(key) + '\n'
+                else:
+                    out += str(key.real) + ' ' + str(key.imag) + '\n'
+        else:
+            out += '|↑' + tpe[0] + '↑|\n'
+        for x in value:
+            tpe = str(type(x))[8:-2]
+            if (tpe == 'list') or (tpe == 'tuple') or (tpe == 'set'):
+                out += self.serializeLTS(None, x, -1)
+            elif (tpe == 'str') or (tpe == 'int') or (tpe == 'bool') or (tpe == 'float') or (tpe == 'complex'):
+                out += self.basicVarSerializer(None, x, False)
+            elif tpe == 'dict':
+                out += self.serializeDICT(None, x, -1)
+            else:
+                print('Unrecognizable data-type')
+        if (LoD == 0) or (LoD == 1):
+            out += '|↓|' + str(type(value))[8:-2] + '|↓|\n'
+        else:
+            out += '|↓' + str(type(value))[8:-2][0] + '↓|\n'
+        return out
+
+    def serializeDICT(self, key, value, LoD):
+        out = ''
+        if LoD == -1:
+            out += '|↑|dictInList|↑|\n'
+        else:
+            out += '|↑|dict|↑|\n'
+            er = str(type(key))[8:-2]
+            if (er == 'str') or (er == 'int') or (er == 'float') or (er == 'bool') or (er == 'complex'):
+                out += '|↑' + er + '↑|\n'
+                if er != 'complex':
+                    out += str(key) + '\n'
+                else:
+                    out += str(key.real) + ' ' + str(key.imag) + '\n'
+        for x in value:
+            tpe = str(type(value[x]))[8:-2]
+            if (tpe == 'str') or (tpe == 'int') or (tpe == 'float') or (tpe == 'bool') or (tpe == 'complex'):
+                out += self.basicVarSerializer(x, value[x])
+            elif (tpe == 'list') or (tpe == 'tuple') or (tpe == 'dict'):
+                out += self.serializeLTS(x, value[x], 1)
+            elif tpe == 'dict':
+                out += self.serializeDICT(x, value[x], 1)
+            else:
+                print('Unrecognizable data-type')
+        if LoD == -1:
+            out += '|↓|dictInList|↓|\n'
+        else:
+            out += '|↓|dict|↓|\n'
+        return out
+
     def Serialize(self):
-        return None
+        out = ''
+        for x in self.data:
+            tpe = str(type(self.data[x]))[8:-2]
+            if (tpe == 'int') or (tpe == 'float') or (tpe == 'bool') or (tpe == 'str') or (tpe == 'complex'):
+                out += self.basicVarSerializer(x, self.data[x], True)
+            elif (tpe == 'set') or (tpe == 'tuple') or (tpe == 'list'):
+                out += self.serializeLTS(x, self.data[x], 0)
+            elif tpe == 'dict':
+                out += self.serializeDICT(x, self.data[x], 0)
+            else:
+                print('ERROR')
+        file = open(self.dataFilePath, 'w', encoding='UTF-8')
+        file.truncate(0)
+        file.write(out)
+        file.close()
 
 
 a = dataBlock('E:\\testing.txt', True)
-m = True
-v = True
-print(a.basicVarSerializer(m, v, False), end='\n')
-print(a.basicVarSerializer(m, v))
+a.data = {'a': 5, 'b': 6, 'c': [1, 2, 3, (4, 5, {1, 2, 3}), {'a': 1, 'b': 2, 'c': [4, 8, 8.0, complex(1, 2)]}]}
+a.Serialize()
+a.Deserialize()
+print(a.data)
 '''
 a.Deserialize()
 print(a)
