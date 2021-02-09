@@ -13,7 +13,7 @@ class dataBlock:
     Link to this repo : https://github.com/31ayush05/wSerializer
     """
 
-    def __init__(self, filePath, autoSync=False):
+    def __init__(self, filePath, cleanFile=False, autoSync=False):
         """
         dataBlock is the block of data in which you are going to store numerous values linked to their specific
         names(variable names).
@@ -56,7 +56,9 @@ class dataBlock:
             file = open(filePath, 'x')
             file.close()
         self.dataFilePath = filePath
-        self.Deserializer()
+        if cleanFile:
+            self.reset()
+        self._Deserializer()
 
     def __str__(self):
         out = '\n' * 2 + '-- DATABASE --' + '\n' * 2
@@ -103,7 +105,7 @@ class dataBlock:
         if not (name in self.data):
             if not (name in self.reservedKeywords):
                 if not (value in self.reservedKeywords):
-                    self.AddValue(name, value, None, 0, True)
+                    self._AddValue(name, value, None, 0, True)
                     if self.update:
                         self.Serialize()
                 else:
@@ -113,25 +115,25 @@ class dataBlock:
         else:
             print('Similar name exists cannot create duplicate names')
 
-    def AddValue(self, name, value, dataSet, d, called=True):
+    def _AddValue(self, name, value, dataSet, d, called=True):
         if called:
             if d == 0:
                 self.data[name] = value
             else:
                 d -= 1
-                self.data[list(self.data.keys())[-1]] = self.AddValue(name, value,
-                                                                      self.data[list(self.data.keys())[-1]], d, False)
+                self.data[list(self.data.keys())[-1]] = self._AddValue(name, value,
+                                                                       self.data[list(self.data.keys())[-1]], d, False)
         else:
             if d == 0:
                 dataSet[name] = value
                 return dataSet
             else:
                 d -= 1
-                dataSet[list(dataSet.keys())[-1]] = self.AddValue(name, value,
-                                                                  dataSet[list(dataSet.keys())[-1]], d, False)
+                dataSet[list(dataSet.keys())[-1]] = self._AddValue(name, value,
+                                                                   dataSet[list(dataSet.keys())[-1]], d, False)
                 return dataSet
 
-    def convertLis(self, d, lis, typeLis='tuple'):
+    def _convertLis(self, d, lis, typeLis='tuple'):
         if d == 1:
             if typeLis == 'tuple':
                 lis = tuple(lis)
@@ -141,12 +143,12 @@ class dataBlock:
         else:
             d -= 1
             if typeLis == 'tuple':
-                lis[-1] = self.convertLis(d, lis[-1], 'tuple')
+                lis[-1] = self._convertLis(d, lis[-1], 'tuple')
             else:
-                lis[-1] = self.convertLis(d, lis[-1], 'set')
+                lis[-1] = self._convertLis(d, lis[-1], 'set')
             return lis
 
-    def keyWiseAdder(self, tString, keyType, dataSet=None, usersCall=True):
+    def _keyWiseAdder(self, tString, keyType, dataSet=None, usersCall=True):
         if tString == '|↑str↑|':
             keyType = 'str'
         elif tString == '|↑int↑|':
@@ -199,14 +201,14 @@ class dataBlock:
         else:
             return [keyType, dataSet]
 
-    def addToList(self, d, lis, val, firstTime=False):
+    def _addToList(self, d, lis, val, firstTime=False):
         if d == 0:
             lis.append(val)
             if firstTime:
                 return lis
         else:
             d -= 1
-            self.addToList(d, lis[-1], val)
+            self._addToList(d, lis[-1], val)
             if firstTime:
                 return lis
 
@@ -219,9 +221,9 @@ class dataBlock:
         :param printOutPut: if set True prints the dataSet every time called
         :return: nothing
         """
-        self.Deserializer(printOutPut)
+        self._Deserializer(printOutPut)
 
-    def Deserializer(self, printOutPut=False, usersCall=True, data=None):
+    def _Deserializer(self, printOutPut=False, usersCall=True, data=None):
         if usersCall:
             self.data = {}
             if self.update:
@@ -290,39 +292,39 @@ class dataBlock:
                 else:
                     if keyType == 'str':
                         if usersCall:
-                            self.AddValue(str(tString), {}, self.data, dictDepth - 1)
+                            self._AddValue(str(tString), {}, self.data, dictDepth - 1)
                         else:
-                            tempData = self.AddValue(str(tString), {}, tempData, dictDepth - 1, False)
+                            tempData = self._AddValue(str(tString), {}, tempData, dictDepth - 1, False)
                         keyType = None
                         readDict = False
                     if keyType == 'int':
                         if usersCall:
-                            self.AddValue(int(tString), {}, self.data, dictDepth - 1)
+                            self._AddValue(int(tString), {}, self.data, dictDepth - 1)
                         else:
-                            tempData = self.AddValue(int(tString), {}, tempData, dictDepth - 1, False)
+                            tempData = self._AddValue(int(tString), {}, tempData, dictDepth - 1, False)
                         keyType = None
                         readDict = False
                     if keyType == 'float':
                         if usersCall:
-                            self.AddValue(float(tString), {}, self.data, dictDepth - 1)
+                            self._AddValue(float(tString), {}, self.data, dictDepth - 1)
                         else:
-                            tempData = self.AddValue(float(tString), {}, tempData, dictDepth - 1, False)
+                            tempData = self._AddValue(float(tString), {}, tempData, dictDepth - 1, False)
                         keyType = None
                         readDict = False
                     if keyType == 'bool':
                         if usersCall:
-                            self.AddValue(bool(tString), {}, self.data, dictDepth - 1)
+                            self._AddValue(bool(tString), {}, self.data, dictDepth - 1)
                         else:
-                            tempData = self.AddValue(bool(tString), {}, tempData, dictDepth - 1, False)
+                            tempData = self._AddValue(bool(tString), {}, tempData, dictDepth - 1, False)
                         keyType = None
                         readDict = False
                     if keyType == 'complex':
                         v = tString.split(' ')
                         if usersCall:
-                            self.AddValue(complex(float(v[0]), float(v[1])), {}, self.data, dictDepth - 1)
+                            self._AddValue(complex(float(v[0]), float(v[1])), {}, self.data, dictDepth - 1)
                         else:
-                            tempData = self.AddValue(complex(float(v[0]), float(v[1])), {}, tempData, dictDepth - 1,
-                                                     False)
+                            tempData = self._AddValue(complex(float(v[0]), float(v[1])), {}, tempData, dictDepth - 1,
+                                                      False)
                         keyType = None
                         readDict = False
             if tString == '|↓|dict|↓|':
@@ -372,87 +374,87 @@ class dataBlock:
                 if readString:
                     if tString == '|↓|str|↓|':
                         if usersCall:
-                            self.AddValue(self.tempList[0], self.tempList[1], self.data, dictDepth)
+                            self._AddValue(self.tempList[0], self.tempList[1], self.data, dictDepth)
                         else:
-                            tempData = self.AddValue(tempList[0], tempList[1], tempData, dictDepth, False)
+                            tempData = self._AddValue(tempList[0], tempList[1], tempData, dictDepth, False)
                         readString = False
                     else:
                         if usersCall:
-                            keyType = self.keyWiseAdder(tString, keyType)
+                            keyType = self._keyWiseAdder(tString, keyType)
                         else:
-                            m = self.keyWiseAdder(tString, keyType, tempList, False)
+                            m = self._keyWiseAdder(tString, keyType, tempList, False)
                             keyType = m[0]
                             tempList = m[1]
                 if readInt:
                     if tString == '|↓|int|↓|':
                         if usersCall:
-                            self.AddValue(self.tempList[0], int(self.tempList[1]), self.data, dictDepth)
+                            self._AddValue(self.tempList[0], int(self.tempList[1]), self.data, dictDepth)
                         else:
-                            tempData = self.AddValue(tempList[0], int(tempList[1]), tempData, dictDepth, False)
+                            tempData = self._AddValue(tempList[0], int(tempList[1]), tempData, dictDepth, False)
                         readInt = False
                     else:
                         if usersCall:
-                            keyType = self.keyWiseAdder(tString, keyType)
+                            keyType = self._keyWiseAdder(tString, keyType)
                         else:
-                            m = self.keyWiseAdder(tString, keyType, tempList, False)
+                            m = self._keyWiseAdder(tString, keyType, tempList, False)
                             keyType = m[0]
                             tempList = m[1]
                 if readFloat:
                     if tString == '|↓|float|↓|':
                         if usersCall:
-                            self.AddValue(self.tempList[0], float(self.tempList[1]), self.data, dictDepth)
+                            self._AddValue(self.tempList[0], float(self.tempList[1]), self.data, dictDepth)
                         else:
-                            tempData = self.AddValue(tempList[0], float(tempList[1]), tempData, dictDepth, False)
+                            tempData = self._AddValue(tempList[0], float(tempList[1]), tempData, dictDepth, False)
                         readFloat = False
                     else:
                         if usersCall:
-                            keyType = self.keyWiseAdder(tString, keyType)
+                            keyType = self._keyWiseAdder(tString, keyType)
                         else:
-                            m = self.keyWiseAdder(tString, keyType, tempList, False)
+                            m = self._keyWiseAdder(tString, keyType, tempList, False)
                             keyType = m[0]
                             tempList = m[1]
                 if readBool:
                     if tString == '|↓|bool|↓|':
                         if usersCall:
-                            self.AddValue(self.tempList[0], bool(self.tempList[1]), self.data, dictDepth)
+                            self._AddValue(self.tempList[0], bool(self.tempList[1]), self.data, dictDepth)
                         else:
-                            tempData = self.AddValue(tempList[0], bool(tempList[1]), tempData, dictDepth, False)
+                            tempData = self._AddValue(tempList[0], bool(tempList[1]), tempData, dictDepth, False)
                         readBool = False
                     else:
                         if usersCall:
-                            keyType = self.keyWiseAdder(tString, keyType)
+                            keyType = self._keyWiseAdder(tString, keyType)
                         else:
-                            m = self.keyWiseAdder(tString, keyType, tempList, False)
+                            m = self._keyWiseAdder(tString, keyType, tempList, False)
                             keyType = m[0]
                             tempList = m[1]
                 if readComplex:
                     if tString == '|↓|complex|↓|':
                         if usersCall:
                             n = self.tempList[1].split(' ')
-                            self.AddValue(self.tempList[0], complex(float(n[0]), float(n[1])), self.data, dictDepth)
+                            self._AddValue(self.tempList[0], complex(float(n[0]), float(n[1])), self.data, dictDepth)
                         else:
                             n = tempList[1].split(' ')
-                            tempData = self.AddValue(tempList[0], complex(float(n[0]), float(n[1])), tempData,
-                                                     dictDepth, False)
+                            tempData = self._AddValue(tempList[0], complex(float(n[0]), float(n[1])), tempData,
+                                                      dictDepth, False)
                         readComplex = False
                     else:
                         if usersCall:
-                            keyType = self.keyWiseAdder(tString, keyType)
+                            keyType = self._keyWiseAdder(tString, keyType)
                         else:
-                            m = self.keyWiseAdder(tString, keyType, tempList, False)
+                            m = self._keyWiseAdder(tString, keyType, tempList, False)
                             keyType = m[0]
                             tempList = m[1]
                 if readList:
                     if ((tString == '|↓|list|↓|') or (tString == '|↓|tuple|↓|') or (tString == '|↓|set|↓|')) and (
                             readDictInList == 0):
                         if tString == '|↓|tuple|↓|':
-                            listStore = self.convertLis(listDepth, listStore, 'tuple')
+                            listStore = self._convertLis(listDepth, listStore, 'tuple')
                         if tString == '|↓|set|↓|':
-                            listStore = self.convertLis(listDepth, listStore, 'set')
+                            listStore = self._convertLis(listDepth, listStore, 'set')
                         if usersCall:
-                            self.AddValue(self.tempList, listStore, self.data, dictDepth)
+                            self._AddValue(self.tempList, listStore, self.data, dictDepth)
                         else:
-                            tempData = self.AddValue(tempList, listStore, tempData, dictDepth, False)
+                            tempData = self._AddValue(tempList, listStore, tempData, dictDepth, False)
                         readList = False
                     else:
                         if listFirstTime:
@@ -506,12 +508,12 @@ class dataBlock:
                         else:
                             if (tString == '|↓l↓|') or (tString == '|↓t↓|') or (tString == '|↓s↓|'):
                                 if tString == '|↓t↓|':
-                                    listStore = self.convertLis(listDepth, listStore, 'tuple')
+                                    listStore = self._convertLis(listDepth, listStore, 'tuple')
                                 if tString == '|↓s↓|':
-                                    listStore = self.convertLis(listDepth, listStore, 'set')
+                                    listStore = self._convertLis(listDepth, listStore, 'set')
                                 listDepth -= 1
                             if (tString == '|↑l↑|') or (tString == '|↑t↑|') or (tString == '|↑s↑|'):
-                                listStore = self.addToList(listDepth - 1, listStore, [], True)
+                                listStore = self._addToList(listDepth - 1, listStore, [], True)
                                 listDepth += 1
                             if tString == '|↑|dictInList|↑|':
                                 if readDictInList == 0:
@@ -535,35 +537,36 @@ class dataBlock:
                                     if tString == '|↓|str|↓|':
                                         readInListStr = False
                                     else:
-                                        listStore = self.addToList(listDepth - 1, listStore, str(tString), True)
+                                        listStore = self._addToList(listDepth - 1, listStore, str(tString), True)
                                 if readInListInt:
                                     if tString == '|↓|int|↓|':
                                         readInListInt = False
                                     else:
-                                        listStore = self.addToList(listDepth - 1, listStore, int(tString), True)
+                                        listStore = self._addToList(listDepth - 1, listStore, int(tString), True)
                                 if readInListFloat:
                                     if tString == '|↓|float|↓|':
                                         readInListFloat = False
                                     else:
-                                        listStore = self.addToList(listDepth - 1, listStore, float(tString), True)
+                                        listStore = self._addToList(listDepth - 1, listStore, float(tString), True)
                                 if readInListBool:
                                     if tString == '|↓|bool|↓|':
                                         readInListBool = False
                                     else:
-                                        listStore = self.addToList(listDepth - 1, listStore, bool(tString), True)
+                                        listStore = self._addToList(listDepth - 1, listStore, bool(tString), True)
                                 if readInListComplex:
                                     if tString == '|↓|complex|↓|':
                                         readInListComplex = False
                                     else:
-                                        listStore = self.addToList(listDepth - 1, listStore,
-                                                                   complex(float(tString.split(' ')[0]),
-                                                                           float(tString.split(' ')[1])), True)
+                                        listStore = self._addToList(listDepth - 1, listStore,
+                                                                    complex(float(tString.split(' ')[0]),
+                                                                            float(tString.split(' ')[1])), True)
                                 if readDictInList != 0:
                                     if tString == '|↓|dictInList|↓|':
                                         readDictInList -= 1
                                         if readDictInList == 0:
-                                            listStore = self.addToList(listDepth - 1, listStore,
-                                                                       self.Deserializer(False, False, dictToRead), True)
+                                            listStore = self._addToList(listDepth - 1, listStore,
+                                                                        self._Deserializer(False, False, dictToRead),
+                                                                        True)
                                         else:
                                             dictToRead.append(tString)
                                     else:
@@ -582,7 +585,7 @@ class dataBlock:
             if printOutPut:
                 print(self.__str__())
 
-    def basicVarSerializer(self, key, value, outOfList=True):
+    def _basicVarSerializer(self, key, value, outOfList=True):
         tpe = str(type(value))[8:-2]
         out = '|↑|' + tpe + '|↑|\n'
         if outOfList:
@@ -599,7 +602,7 @@ class dataBlock:
             out += str(value) + '\n' + '|↓|' + tpe + '|↓|\n'
         return out
 
-    def serializeLTS(self, key, value, LoD):
+    def _serializeLTS(self, key, value, LoD):
         out = ''
         tpe = str(type(value))[8:-2]
         if (LoD == 0) or (LoD == 1):
@@ -616,11 +619,11 @@ class dataBlock:
         for x in value:
             tpe = str(type(x))[8:-2]
             if (tpe == 'list') or (tpe == 'tuple') or (tpe == 'set'):
-                out += self.serializeLTS(None, x, -1)
+                out += self._serializeLTS(None, x, -1)
             elif (tpe == 'str') or (tpe == 'int') or (tpe == 'bool') or (tpe == 'float') or (tpe == 'complex'):
-                out += self.basicVarSerializer(None, x, False)
+                out += self._basicVarSerializer(None, x, False)
             elif tpe == 'dict':
-                out += self.serializeDICT(None, x, -1)
+                out += self._serializeDICT(None, x, -1)
             else:
                 print('Unrecognizable data-type')
         if (LoD == 0) or (LoD == 1):
@@ -629,7 +632,7 @@ class dataBlock:
             out += '|↓' + str(type(value))[8:-2][0] + '↓|\n'
         return out
 
-    def serializeDICT(self, key, value, LoD):
+    def _serializeDICT(self, key, value, LoD):
         out = ''
         if LoD == -1:
             out += '|↑|dictInList|↑|\n'
@@ -645,11 +648,11 @@ class dataBlock:
         for x in value:
             tpe = str(type(value[x]))[8:-2]
             if (tpe == 'str') or (tpe == 'int') or (tpe == 'float') or (tpe == 'bool') or (tpe == 'complex'):
-                out += self.basicVarSerializer(x, value[x])
+                out += self._basicVarSerializer(x, value[x])
             elif (tpe == 'list') or (tpe == 'tuple') or (tpe == 'dict'):
-                out += self.serializeLTS(x, value[x], 1)
+                out += self._serializeLTS(x, value[x], 1)
             elif tpe == 'dict':
-                out += self.serializeDICT(x, value[x], 1)
+                out += self._serializeDICT(x, value[x], 1)
             else:
                 print('Unrecognizable data-type')
         if LoD == -1:
@@ -668,15 +671,15 @@ class dataBlock:
         for x in self.data:
             tpe = str(type(self.data[x]))[8:-2]
             if (tpe == 'int') or (tpe == 'float') or (tpe == 'bool') or (tpe == 'str') or (tpe == 'complex'):
-                out += self.basicVarSerializer(x, self.data[x], True)
+                out += self._basicVarSerializer(x, self.data[x], True)
             elif (tpe == 'set') or (tpe == 'tuple') or (tpe == 'list'):
-                out += self.serializeLTS(x, self.data[x], 0)
+                out += self._serializeLTS(x, self.data[x], 0)
             elif tpe == 'dict':
-                out += self.serializeDICT(x, self.data[x], 0)
+                out += self._serializeDICT(x, self.data[x], 0)
             else:
                 print('ERROR')
         if path.exists(self.dataFilePath):
-            f = open(self.dataFilePath, 'r', encoding='UTF-8')
+            f = open(self.dataFilePath, 'w', encoding='UTF-8')
             f.truncate(0)
             f.write(out)
             f.close()
@@ -685,12 +688,3 @@ class dataBlock:
             f.truncate(0)
             f.write(out)
             f.close()
-
-
-a = dataBlock('E://testing.txt', True)
-'''
-a.Add('name', 'JOHN')
-a.Add('subjects', ['maths', 'chemistry', 'physics', 'physical education', 'english', 'computer science'])
-a.Add('marks', [99.85, 91.1, 85, 100, 80, 100])
-'''
-print(a['subjects'])
