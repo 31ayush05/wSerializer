@@ -92,7 +92,6 @@ class dataBlock:
         else:
             file = open(self.dataFilePath, 'x')
             file.close()
-        self.__init__(self.dataFilePath, self.update)
 
     def Add(self, name, value):
         """
