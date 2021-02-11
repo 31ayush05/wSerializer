@@ -114,6 +114,19 @@ class dataBlock:
         else:
             print('Similar name exists cannot create duplicate names')
 
+    def Remove(self, name):
+        """
+        Function responsible for removing previously added variables from dataBlock.
+        :param name: Name of the variable to be removed
+        :return: nothing
+        """
+        if name in self.data.keys():
+            del self.data[name]
+            if self.update:
+                self.Serialize()
+        else:
+            print('Defined variable does not exist in the dataBlock')
+
     def _AddValue(self, name, value, dataSet, d, called=True):
         if called:
             if d == 0:
