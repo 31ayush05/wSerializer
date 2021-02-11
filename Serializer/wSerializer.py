@@ -13,7 +13,7 @@ class dataBlock:
     Link to this repo : https://github.com/31ayush05/wSerializer
     """
 
-    def __init__(self, filePath, cleanFile=False, autoSync=False):
+    def __init__(self, filePath, autoSync=False):
         """
         dataBlock is the block of data in which you are going to store numerous values linked to their specific
         names(variable names).
@@ -56,8 +56,6 @@ class dataBlock:
             file = open(filePath, 'x')
             file.close()
         self.dataFilePath = filePath
-        if cleanFile:
-            self.reset()
         self._Deserializer()
 
     def __str__(self):
