@@ -7,11 +7,13 @@ GITHUB - https://github.com/31ayush05
 REPO - https://github.com/31ayush05/wSerializer
 Documentation - https://github.com/31ayush05/wSerializer/wiki/Documentation
 
+OFFLINE DOCUMENTATION
+
 # Installation
 Currently the module cannot be installed using `PIP`. But it can easily be installed the other way.
 ### STEPS
 1. Download the repository as a ZIP file
-2. Extract the ZIP file and copy the code file `Serializer\Serializer.py`.
+2. Extract the ZIP file and copy the code file `Serializer\wSerializer.py`.
 3. Locate the python installation folder on your PC which can be done by RIGHT CLICKING on the PYTHON IDLE > Open file location.
 4. Paste the file in the `<Python installation folder>\Lib\`
 5. Now the module is ready to be imported in any of your python project.
@@ -23,7 +25,7 @@ Currently the module cannot be installed using `PIP`. But it can easily be insta
 ## Importing
 use the following statement to import the module
 
-`import serializer`
+`import wSerializer`
 
 ## Concept behind the module
 The module consists of a class `dataBlock` the `dataBlock` is responsible for storing the variable names with their specific values. The same class `dataBlock` will also retrieve the data.
@@ -34,7 +36,7 @@ The module consists of a class `dataBlock` the `dataBlock` is responsible for st
 ### Defining a `dataBlock` variable
 Defining a `dataBlock` is very simple. The syntax for the same is as follows.
 
-`<variable name> = serializer.dataBlock(filePath, autoSync)`
+`<variable name> = wSerializer.dataBlock(filePath, autoSync)`
 
 * `filePath`(str) - It is the path of the text file to which you want to serialize(store) your data or the file from which you want to Deserialize(retrieve) the data.
 * `autoSync`(bool) -
@@ -51,7 +53,7 @@ Defining a `dataBlock` is very simple. The syntax for the same is as follows.
 
 ##### **EXAMPLES**
 ```
-import serializer as SL
+import wSerializeras SL
 
 dB = SL.dataBlock('E://testing.txt', True)
 ```
@@ -122,7 +124,7 @@ SYNTAX
 
 ##### **EXAMPLES**
 ```
-import serializer as SL
+import wSerializer as SL
 
 dB = SL.dataBlock('E://testing.txt', True)
 
@@ -134,7 +136,7 @@ dB.Add('Hobby' , 'CODING')
 Here the data `{'name' : 'CHINTU' , 'age' : 8 , 'Hobby' : 'Coding'}` is added and is synced with the text file. and can be accessed even if we rerun the program.
 
 ```
-import serializer as SL
+import wSerializer as SL
 
 dB = SL.dataBlock('E://testing.txt', False)
 
@@ -163,7 +165,7 @@ name - It is the name of the variable which you want to remove from the `dataBlo
 
 ##### **EXAMPLES**
 ```
-import serializer as SL
+import wSerializer as SL
 
 dB = SL.dataBlock('E://testing.txt', True)
 
@@ -188,7 +190,7 @@ name - it is the name of the variable you want to access.
 
 ##### **EXAMPLES**
 ```
-import serializer as SL
+import wSerializer as SL
 
 dB = SL.dataBlock('E://testing.txt', True)
 
@@ -204,7 +206,7 @@ The last statement will print `8`.
 If we close the above code and run the following code instead
 
 ```
-import serializer as SL
+import wSerializer as SL
 
 dB = SL.dataBlock('E://testing.txt', True)
 
@@ -231,7 +233,7 @@ just use the code  `print(<dataBlock variable>)` and the entire dataBase will be
 
 ##### **EXAMPLES**
 ```
-import serializer as SL
+import wSerializer as SL
 
 dB = SL.dataBlock('E://testing.txt', True)
 
@@ -273,7 +275,7 @@ SNTAX
 Cleans the stated text file. If the file does not exist creates a new blank file.
 
 ```
-import serializer as SL
+import wSerializer as SL
 
 dB = SL.dataBlock('E://testing.txt', True)
 
@@ -285,7 +287,7 @@ dB.Add('Hobby' , 'CODING')
 Executing the above code will result in data being saved to the text file
 
 ```
-import serializer as SL
+import wSerializer as SL
 
 dB = SL.dataBlock('E://testing.txt', True)
 
@@ -307,7 +309,7 @@ SYNTAX
 This function is called automatically when `autoSync` set to `True`
 
 ```
-import serializer as SL
+import wSerializer as SL
 
 dB = SL.dataBlock('E://testing.txt', False)
 
