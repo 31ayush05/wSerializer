@@ -12,7 +12,7 @@ OFFLINE DOCUMENTATION
 # Installation
 Currently the module cannot be installed using `PIP`. But it can easily be installed the other way.
 ### STEPS
-1. Download the repository as a ZIP file
+1. Download the latest version of repository as a ZIP file from https://github.com/31ayush05/wSerializer/releases/tag/v0.5
 2. Extract the ZIP file and copy the code file `Serializer\wSerializer.py`.
 3. Locate the python installation folder on your PC which can be done by RIGHT CLICKING on the PYTHON IDLE > Open file location.
 4. Paste the file in the `<Python installation folder>\Lib\`
@@ -36,14 +36,17 @@ The module consists of a class `dataBlock` the `dataBlock` is responsible for st
 ### Defining a `dataBlock` variable
 Defining a `dataBlock` is very simple. The syntax for the same is as follows.
 
-`<variable name> = wSerializer.dataBlock(filePath, autoSync)`
+`<variable name> = wSerializer.dataBlock(filePath, autoSync, showCompression)`
 
 * `filePath`(str) - It is the path of the text file to which you want to serialize(store) your data or the file from which you want to Deserialize(retrieve) the data.
-* `autoSync`(bool) -
+* `autoSync`(bool) - _**Default = True**_
   * If set `True` - the text file is kept up-to-date by updating the file as soon as you add more variables to `dataBlock`.
     * This can be used when the data file needs to remain up-to-date
   * If set `False` - the text file is not kept up-to-date instead you have to call the function `Serialize()` every time you want to update the text file.
     * This can come handy when you want to update the file after you have collected all necessary data.
+* `showCompression`(bool) - _**Default = False**_
+  * If set `True` displays the percentage by which the data file was compressed.
+  * If set `False` does not display the percentage.
 
 #### NOTE
 > The `dataBlock` keeps all your variables stored in RAM as long as the code is running
@@ -53,9 +56,9 @@ Defining a `dataBlock` is very simple. The syntax for the same is as follows.
 
 ##### **EXAMPLES**
 ```
-import wSerializeras SL
+import wSerializer as SL
 
-dB = SL.dataBlock('E://testing.txt', True)
+dB = SL.dataBlock('E://testing.txt')
 ```
 Here we have created a `dataBlock` named `dB` with the text file path set to `'E://testing.txt'` and we have enabled `autoSync`.
 Thus the data will be synced with the text file.
@@ -126,7 +129,7 @@ SYNTAX
 ```
 import wSerializer as SL
 
-dB = SL.dataBlock('E://testing.txt', True)
+dB = SL.dataBlock('E://testing.txt')
 
 dB.Add('name' , 'CHINTU')
 dB.Add('age' , 8)
@@ -167,7 +170,7 @@ name - It is the name of the variable which you want to remove from the `dataBlo
 ```
 import wSerializer as SL
 
-dB = SL.dataBlock('E://testing.txt', True)
+dB = SL.dataBlock('E://testing.txt')
 
 dB.Add('name' , 'CHINTU')
 dB.Add('age' , 8)
@@ -192,7 +195,7 @@ name - it is the name of the variable you want to access.
 ```
 import wSerializer as SL
 
-dB = SL.dataBlock('E://testing.txt', True)
+dB = SL.dataBlock('E://testing.txt')
 
 dB.Add('name' , 'CHINTU')
 dB.Add('age' , 8)
@@ -208,7 +211,7 @@ If we close the above code and run the following code instead
 ```
 import wSerializer as SL
 
-dB = SL.dataBlock('E://testing.txt', True)
+dB = SL.dataBlock('E://testing.txt')
 
 print(dB['name'])
 print(dB['age'])
@@ -227,6 +230,69 @@ This happened because we did not delete the text file and accessed it using `dB 
 
 ***
 
+### `in`
+
+This statement can be used to see weather a particular variable exists in the code or not.
+
+##### **EXAMPLES**
+```
+import wSerializer as SL
+
+dB = SL.dataBlock('E://testing.txt')
+
+dB.Add('name' , 'CHINTU')
+dB.Add('age' , 8)
+dB.Add('Hobby' , 'CODING')
+
+print('name' in dB)
+print('class' in dB)
+```
+The output will be
+```
+True
+False
+```
+because `name` exists while `class` doesn't
+
+***
+
+### Updating a value
+
+`<dataBlock variable name>[<variable name>] = <value>`
+
+if <variable name> exists then its value is updated otherwise new variable with the given value is added.
+
+##### EXAMPLES
+```
+import wSerializer as SL
+
+dB = SL.dataBlock('E://testing.txt')
+
+dB.Add('name' , 'CHINTU')
+dB.Add('age' , 8)
+
+print(dB['age'])
+```
+the above code will create a dataFile named testing.txt and will store `{'name' : 'CHINTU', 'age' : 8}` in the file.
+
+Now if we run the following code
+```
+import wSerializer as SL
+
+dB = SL.dataBlock('E://testing.txt')
+
+dB['age'] = 9
+dB['Hobby'] = 'CODING'
+
+print(dB['age'])
+```
+Since variable name `'age'` already exists its value will be updated to `9` while a new variable named `'Hobby'` will be added with the value `'CODING'`.
+Therefore the data stored becomes `{'name' : 'CHINTU', 'age' : 9, 'Hobby' : 'CODING'}`
+
+> Thus this method can be used to Add new values to the dataBase.
+
+***
+
 ### Printing the entire data base
 
 just use the code  `print(<dataBlock variable>)` and the entire dataBase will be printed.
@@ -235,7 +301,7 @@ just use the code  `print(<dataBlock variable>)` and the entire dataBase will be
 ```
 import wSerializer as SL
 
-dB = SL.dataBlock('E://testing.txt', True)
+dB = SL.dataBlock('E://testing.txt')
 
 dB.Add('name' , 'CHINTU')
 dB.Add('age' , 8)
@@ -277,7 +343,7 @@ Cleans the stated text file. If the file does not exist creates a new blank file
 ```
 import wSerializer as SL
 
-dB = SL.dataBlock('E://testing.txt', True)
+dB = SL.dataBlock('E://testing.txt')
 
 dB.Add('name' , 'CHINTU')
 dB.Add('age' , 8)
@@ -289,7 +355,7 @@ Executing the above code will result in data being saved to the text file
 ```
 import wSerializer as SL
 
-dB = SL.dataBlock('E://testing.txt', True)
+dB = SL.dataBlock('E://testing.txt')
 
 dB.Reset()
 ```
@@ -320,20 +386,3 @@ dB.Serialize()
 ```
 
 Since `autoSync` was **turned OFF** we had to `Serialize()` manually.
-
-***
-
-### `Deserialize()`
-
-Reads the text file and retrieves the data stored in it
-
-SYNTAX
-
-`<dataBlock variable name>.Deserialize()`
-
-#### NOTE
-> If the data is not Serialized ( which happens automatically if `autoSync` is SET to `True`) and `Deserialize()` is called all data stored in RAM is removed and the file is reread thus re-writing the data in RAM. CONCLUSION : If some data was present in RAM which wasn't updated in the text file it will be lost.
-
-> Deserialize() is called automatically once and then as more data is added the data is stored in RAM (as well as it is stored in the text file either manually or automatically) and can be accessed anytime. Resulting in a scenario where the all the time the data stored in RAM is same as the data stored in text file. Therefore, you need to call Deserialize() manually only if same file is being used by more than one python code **which is not recommended**. 
-
-> CONCLUSION : Don't use `Deserialize()` until and unless same text file is accessed by more than one python code.
