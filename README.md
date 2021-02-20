@@ -4,7 +4,7 @@ The current version is not capable of encryptng the file.
 
 ## v0.6 updates
 
-* variable values can be updated and new variables can be added just like dicitionaries `<dataBlock variable name>[key] = value`.
+* variable values can be updated and new variables can be added just like dictionaries `<dataBlock variable name>[key] = value`.
 * Deserialize() function is discontinued as its useless.
 * dataFiles now get compressed (was required since the data tags took up a huge amount of space).
 * now `in` function can be used to see if a variable exisst or not.
