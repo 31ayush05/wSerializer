@@ -1,6 +1,12 @@
-# wSerializer v0.5
+# wSerializer v0.6
 A python library capable of serializing data and storing them as text file and then also retrieving it from the text file. The code is also capable of encrypting the text file so that it cannot be edited externally thus protecting the data.
 The current version is not capable of encryptng the file.
+
+v0.6 updates
+variable values can be updated and new variables can be added just like dicitionaries `<dataBlock variable name>[key] = value`.
+Deserialize() function is discontinued as its useless.
+dataFiles now get compressed (was required since the data tags took up a huge amount of space).
+now `in` function can be used to see if a variable exisst or not.
 
 Authur - Ayush Yadav
 GITHUB - https://github.com/31ayush05
