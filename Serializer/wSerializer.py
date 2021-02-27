@@ -743,13 +743,13 @@ class dataBlock:
                     if not (y in definitions):
                         definitions.append(y)
             file.close()
-            tags = []
-            nonTags = []
+            tags = set({})
+            nonTags = set({})
             for x in definitions:
                 if x in self.reservedKeywords:
-                    tags.append(x)
+                    tags.add(x)
                 else:
-                    nonTags.append(x)
+                    nonTags.add(x)
             definitions = []
             for x in tags:
                 definitions.append(x)
