@@ -124,11 +124,11 @@ class dataBlock:
                     if self.update:
                         self.Serialize()
                 else:
-                    print('variable value : ' + str(value) + ' is a reserved keyword')
+                    raise ValueError('variable value : ' + str(value) + ' is a reserved keyword')
             else:
-                print('variable name : ' + str(name) + ' is a reserved keyword')
+                raise KeyError('variable name : ' + str(name) + ' is a reserved keyword')
         else:
-            print('Similar name exists cannot create duplicate names')
+            raise KeyError('Variable with same name exists cannot create two variables with same name')
 
     def Remove(self, name):
         """
@@ -141,7 +141,7 @@ class dataBlock:
             if self.update:
                 self.Serialize()
         else:
-            print('Defined variable does not exist in the dataBlock')
+            raise KeyError('Variable ' + str(name) + ' does not exist')
 
     def _AddValue(self, name, value, dataSet, d, called=True):
         if called:
@@ -251,8 +251,7 @@ class dataBlock:
             if path.exists(self.dataFilePath):
                 file = open(self.dataFilePath, 'r', encoding='UTF-8')
             else:
-                print('Defined file path does not exist')
-                return None
+                raise RuntimeError('Defined file path does not exist the file removed externally')
             b = len(file.readlines())
             file.close()
         else:
@@ -284,8 +283,7 @@ class dataBlock:
             if path.exists(self.dataFilePath):
                 file = open(self.dataFilePath, 'r', encoding='UTF-8')
             else:
-                print('Defined file path does not exist')
-                return None
+                raise RuntimeError('Defined file path does not exist the file removed externally')
         for x in range(b):
             if usersCall:
                 tString = file.readline()
@@ -647,7 +645,7 @@ class dataBlock:
             elif tpe == 'dict':
                 out += self._serializeDICT(None, x, -1)
             else:
-                print('Unrecognizable data-type')
+                raise TypeError('Unrecognizable data-type')
         if (LoD == 0) or (LoD == 1):
             out += '|↓|' + str(type(value))[8:-2] + '|↓|\n'
         else:
@@ -676,7 +674,7 @@ class dataBlock:
             elif tpe == 'dict':
                 out += self._serializeDICT(x, value[x], 1)
             else:
-                print('Unrecognizable data-type')
+                raise TypeError('Unrecognizable data-type')
         if LoD == -1:
             out += '|↓|dictInList|↓|\n'
         else:
@@ -701,7 +699,7 @@ class dataBlock:
             elif tpe == 'dict':
                 out += self._serializeDICT(x, self.data[x], 0)
             else:
-                print('ERROR')
+                raise TypeError('Unrecognizable data-type')
         if path.exists(self.dataFilePath):
             f = open(self.dataFilePath, 'w', encoding='UTF-8')
             f.truncate(0)
