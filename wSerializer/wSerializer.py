@@ -76,7 +76,10 @@ class dataBlock:
         return out + '\n'
 
     def __getitem__(self, item):
-        return self.data[item]
+        if item in self.data:
+            return self.data[item]
+        else:
+            raise KeyError(str(item) + ' does not exist')
 
     def __setitem__(self, key, value):
         if key in self.data.keys():
@@ -240,7 +243,7 @@ class dataBlock:
             if firstTime:
                 return lis
 
-    def _Deserializer(self, printOutPut=False, usersCall=True, data=None):
+    def _Deserializer(self, usersCall=True, data=None):
         if not self.fileOpen:
             self._decompress()
         if usersCall:
@@ -598,9 +601,6 @@ class dataBlock:
             self.update = True
         if not usersCall:
             return tempData
-        else:
-            if printOutPut:
-                print(self.__str__())
         self._compress(self.sC)
         self.fileOpen = False
 
