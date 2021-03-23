@@ -20,7 +20,7 @@ OFFLINE DOCUMENTATION
 Currently the module cannot be installed using `PIP`. But it can easily be installed the other way.
 ### STEPS
 1. Download the latest version of repository as a ZIP file from https://github.com/31ayush05/wSerializer/releases/tag/v0.6
-2. Extract the ZIP file and copy the code file `Serializer\wSerializer.py`.
+2. Extract the ZIP file and copy the code file `wSerializer\wSerializer.py`.
 3. Locate the python installation folder on your PC which can be done by RIGHT CLICKING on the PYTHON IDLE > Open file location.
 4. Paste the file in the `<Python installation folder>\Lib\`
 5. Now the module is ready to be imported in any of your python project.
