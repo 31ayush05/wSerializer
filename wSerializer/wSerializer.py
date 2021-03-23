@@ -585,7 +585,7 @@ class dataBlock:
                                         readDictInList -= 1
                                         if readDictInList == 0:
                                             listStore = self._addToList(listDepth - 1, listStore,
-                                                                        self._Deserializer(False, False, dictToRead),
+                                                                        self._Deserializer(False, False),
                                                                         True)
                                         else:
                                             dictToRead.append(tString)
